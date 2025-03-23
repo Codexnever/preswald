@@ -1,17 +1,15 @@
 'use client';
 
 import { Menu, PanelLeft, PanelLeftClose } from 'lucide-react';
-
-import React from 'react';
+import PropTypes from 'prop-types';
 
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-
 import { cn } from '@/lib/utils';
 
-export default function Topbar({ setSidebarOpen, branding, onToggleSidebar, isCollapsed }) {
+export default function TopBar({ setSidebarOpen, branding, onToggleSidebar, isCollapsed }) {
   return (
-    <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b bg-background px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+    <div className={cn("sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b bg-background px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8")}>
       {/* Mobile menu button */}
       <Button
         variant="ghost"
@@ -57,3 +55,14 @@ export default function Topbar({ setSidebarOpen, branding, onToggleSidebar, isCo
     </div>
   );
 }
+
+// Add prop validation
+TopBar.propTypes = {
+  setSidebarOpen: PropTypes.func.isRequired,
+  onToggleSidebar: PropTypes.func.isRequired,
+  isCollapsed: PropTypes.bool.isRequired,
+  branding: PropTypes.shape({
+    name: PropTypes.string,
+    logo: PropTypes.string,
+  }),
+};

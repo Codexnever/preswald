@@ -1,7 +1,6 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 
 import { Card, CardContent } from '@/components/ui/card';
-
 import { cn } from '@/lib/utils';
 
 const SpinnerWidget = ({
@@ -40,6 +39,15 @@ const SpinnerWidget = ({
   }
 
   return SpinnerContent;
+};
+
+// Add prop validation
+SpinnerWidget.propTypes = {
+  label: PropTypes.string,
+  size: PropTypes.oneOf(['sm', 'default', 'lg']),
+  variant: PropTypes.oneOf(['default', 'card']),
+  className: PropTypes.string,
+  showLabel: PropTypes.bool,
 };
 
 export default SpinnerWidget;

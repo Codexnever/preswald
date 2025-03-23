@@ -1,8 +1,7 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-
 import { cn } from '@/lib/utils';
 
 const CheckboxWidget = ({
@@ -15,19 +14,11 @@ const CheckboxWidget = ({
   disabled = false,
 }) => {
   const handleCheckedChange = (checked) => {
-    console.log('[CheckboxWidget] Change event:', {
-      id,
-      oldValue: checked,
-      newValue: checked,
-      timestamp: new Date().toISOString(),
-    });
-
+    // Removed console.log statement that was causing a warning
+    
     try {
       onChange?.(checked);
-      console.log('[CheckboxWidget] State updated successfully:', {
-        id,
-        value: checked,
-      });
+      // Removed console.log statement that was causing a warning
     } catch (error) {
       console.error('[CheckboxWidget] Error updating state:', {
         id,
@@ -55,6 +46,16 @@ const CheckboxWidget = ({
       </div>
     </div>
   );
+};
+
+CheckboxWidget.propTypes = {
+  label: PropTypes.string.isRequired,
+  checked: PropTypes.bool,
+  description: PropTypes.string,
+  id: PropTypes.string.isRequired,
+  onChange: PropTypes.func,
+  className: PropTypes.string,
+  disabled: PropTypes.bool,
 };
 
 export default CheckboxWidget;

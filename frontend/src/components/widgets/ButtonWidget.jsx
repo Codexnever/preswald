@@ -1,7 +1,6 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 
 import { Button } from '@/components/ui/button';
-
 import { cn } from '@/lib/utils';
 
 const ButtonWidget = ({
@@ -33,6 +32,16 @@ const ButtonWidget = ({
       )}
     </Button>
   );
+};
+
+ButtonWidget.propTypes = {
+  label: PropTypes.string.isRequired,
+  onClick: PropTypes.func,
+  variant: PropTypes.string,
+  size: PropTypes.string,
+  className: PropTypes.string,
+  disabled: PropTypes.bool,
+  loading: PropTypes.bool,
 };
 
 export default ButtonWidget;

@@ -1,12 +1,13 @@
 import logging
 import os
-from typing import Optional
+import random
+import re
+from typing import Optional, Tuple
 
+import click
 import pkg_resources
 import toml
-import logging
-import re
-import random
+
 
 def read_template(template_name):
     """Read content from a template file."""
@@ -15,6 +16,62 @@ def read_template(template_name):
     )
     with open(template_path) as f:
         return f.read()
+
+
+GITHUB_USERNAME_REGEX = r"^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$"
+
+
+def normalize_github_username(username: str) -> str:
+    """Normalize username with multiple cleanup steps"""
+    username = username.strip().lower()
+    # Replace common invalid characters
+    username = re.sub(r"[_@]+", "-", username)
+    # Remove invalid characters
+    username = re.sub(r"[^a-z0-9-]", "", username)
+    # Collapse multiple hyphens
+    username = re.sub(r"-+", "-", username)
+    # Trim to length limits
+    return username[:39].strip("-")
+
+
+def validate_api_key(api_key: str) -> Tuple[bool, str]:
+    """Validate Structured Cloud API key format"""
+    if not api_key:
+        return False, click.style("❌ API key cannot be empty", fg="red")
+
+    # Format check: prswld- prefix followed by UUID
+    pattern = r"^prswld-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+    if not re.fullmatch(pattern, api_key.lower()):
+        error_msg = (
+            click.style("❌ Invalid API key format!\n", fg="red")
+            + click.style("Required format: ", fg="yellow")
+            + "prswld-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\n"
+            + click.style("Example: ", fg="yellow")
+            + click.style("prswld-ab11bc24-927c-4962-820a-417312f3c55c", fg="cyan")
+        )
+        return False, error_msg
+
+    return True, ""
+
+
+def validate_github_username(username: str) -> Tuple[bool, str, Optional[str]]:
+    """Return (is_valid, message, corrected_username)"""
+    original = username
+    normalized = normalize_github_username(username)
+
+    # Check if normalization changed the input
+    needs_correction = normalized != original
+
+    if not normalized:
+        return (False, "Empty after normalization", None)
+
+    if not re.fullmatch(r"^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$", normalized):
+        return (False, "Invalid format after normalization", None)
+
+    if needs_correction:
+        return (False, "Contains invalid characters", normalized)
+
+    return (True, "", normalized)
 
 
 def read_port_from_config(config_path: str, port: int):
@@ -72,42 +129,27 @@ def configure_logging(config_path: Optional[str] = None, level: Optional[str] = 
 
     return log_config["level"]
 
+
 def validate_slug(slug: str) -> bool:
-    pattern = r'^[a-z0-9][a-z0-9-]*[a-z0-9]$'
+    pattern = r"^[a-z0-9][a-z0-9-]*[a-z0-9]$"
     return bool(re.match(pattern, slug)) and len(slug) >= 3 and len(slug) <= 63
 
 
 def get_project_slug(config_path: str) -> str:
-    if not os.path.exists(config_path):
-        raise Exception(f"Config file not found at: {config_path}")
-        
-    try:
+    try:  # Proper 4-space indent
         config = toml.load(config_path)
         if "project" not in config:
-            raise Exception("Missing [project] section in preswald.toml")
-            
-        if "slug" not in config["project"]:
-            raise Exception("Missing required field 'slug' in [project] section")
-            
-        slug = config["project"]["slug"]
-        if not validate_slug(slug):
-            raise Exception(
-                "Invalid slug format. Slug must be 3-63 characters long, "
-                "contain only lowercase letters, numbers, and hyphens, "
-                "and must start and end with a letter or number."
-            )
-            
-        return slug
-        
+            raise Exception("Missing [project] section")
+        return config["project"]["slug"]
     except Exception as e:
-        raise Exception(f"Error reading project slug: {str(e)}")
+        raise Exception(f"Error reading slug: {e}") from e
 
 
 def generate_slug(base_name: str) -> str:
-    base_slug = re.sub(r'[^a-zA-Z0-9]+', '-', base_name.lower()).strip('-')
+    base_slug = re.sub(r"[^a-zA-Z0-9]+", "-", base_name.lower()).strip("-")
     random_number = random.randint(100000, 999999)
     slug = f"{base_slug}-{random_number}"
     if not validate_slug(slug):
         slug = f"preswald-{random_number}"
-    
+
     return slug

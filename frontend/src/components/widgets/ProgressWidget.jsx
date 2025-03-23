@@ -1,8 +1,7 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-
 import { cn } from '@/lib/utils';
 
 const ProgressWidget = ({
@@ -64,6 +63,15 @@ const ProgressWidget = ({
       </CardContent>
     </Card>
   );
+};
+
+ProgressWidget.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.number,
+  steps: PropTypes.arrayOf(PropTypes.string),
+  className: PropTypes.string,
+  showValue: PropTypes.bool,
+  size: PropTypes.oneOf(['sm', 'default', 'lg']),
 };
 
 export default ProgressWidget;

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import { useState } from 'react'; 
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
 import { cn } from '@/lib/utils';
 
 const CONNECTION_TYPES = [
@@ -72,6 +72,13 @@ const ConnectionInterfaceWidget = ({ className, onConnect, disabled = false }) =
       </CardContent>
     </Card>
   );
+};
+
+// Add prop validation
+ConnectionInterfaceWidget.propTypes = {
+  className: PropTypes.string,
+  onConnect: PropTypes.func,
+  disabled: PropTypes.bool,
 };
 
 export default ConnectionInterfaceWidget;

@@ -1,4 +1,4 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 
@@ -17,4 +17,10 @@ export const Tooltip = ({ content, children }) => {
       </HoverCardContent>
     </HoverCard>
   );
+};
+
+// Add prop validation
+Tooltip.propTypes = {
+  content: PropTypes.node.isRequired,
+  children: PropTypes.node.isRequired,
 };

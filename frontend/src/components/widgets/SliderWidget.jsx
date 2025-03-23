@@ -1,9 +1,8 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-
 import { cn } from '@/lib/utils';
 
 const SliderWidget = ({
@@ -29,7 +28,7 @@ const SliderWidget = ({
 
   const handleMouseUp = () => {
     if (localValue !== value) {
-      console.log('[SliderWidget] Change event:', {
+      console.error('[SliderWidget] Change event:', {
         id,
         value: localValue,
         timestamp: new Date().toISOString(),
@@ -52,16 +51,6 @@ const SliderWidget = ({
           <span className="text-sm text-muted-foreground font-medium">{localValue}</span>
         )}
       </div>
-      {/* <Slider
-        id={id}
-        min={min}
-        max={max}
-        step={step}
-        value={[localValue]}
-        onValueChange={handleValueChange}
-        disabled={disabled}
-        className="w-full text-black"
-      /> */}
       <div className="p-4 bg-white">
         <div className="mt-2">
           <input
@@ -97,6 +86,21 @@ const SliderWidget = ({
   }
 
   return SliderContent;
+};
+
+SliderWidget.propTypes = {
+  label: PropTypes.string,
+  min: PropTypes.number,
+  max: PropTypes.number,
+  value: PropTypes.number,
+  step: PropTypes.number,
+  id: PropTypes.string,
+  onChange: PropTypes.func,
+  className: PropTypes.string,
+  disabled: PropTypes.bool,
+  showValue: PropTypes.bool,
+  showMinMax: PropTypes.bool,
+  variant: PropTypes.oneOf(['default', 'card']),
 };
 
 export default SliderWidget;

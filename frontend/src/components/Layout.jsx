@@ -1,36 +1,27 @@
 'use client';
 
-import {
-  ChartBarIcon,
-  ClockIcon,
-  DocumentTextIcon,
-  GlobeAltIcon,
-  HomeIcon,
-  MagnifyingGlassIcon,
-  ServerIcon,
-  Squares2X2Icon,
-} from '@heroicons/react/24/solid';
-
-import React, { useState } from 'react';
-import { useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
-
-import { cn } from '@/lib/utils';
+import { HomeIcon } from '@heroicons/react/24/solid';
+import PropTypes from 'prop-types';
+import { useState, useEffect } from 'react';
 
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
+
+import { cn } from '@/lib/utils';
 
 const navigation = [{ name: 'Dashboard', href: '/', icon: HomeIcon }];
 
 export default function Layout({ branding, children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [faviconLoaded, setFaviconLoaded] = useState(false);
+  // Remove the unused variable or prefix with underscore if you need it later
+  const [_faviconLoaded, setFaviconLoaded] = useState(false);
 
   useEffect(() => {
     // Get branding from window object (set by server)
     if (window.PRESWALD_BRANDING) {
-      console.log('Received branding:', window.PRESWALD_BRANDING);
+      // Replace console.log with console.warn to match allowed console methods
+      console.warn('Received branding:', window.PRESWALD_BRANDING);
 
       // Update document title
       document.title = window.PRESWALD_BRANDING.name;
@@ -61,7 +52,8 @@ export default function Layout({ branding, children }) {
           .then((response) => {
             if (response.ok) {
               setFaviconLoaded(true);
-              console.log('Favicon loaded successfully');
+              // Replace console.log with console.warn
+              console.warn('Favicon loaded successfully');
               updateFaviconLinks(window.PRESWALD_BRANDING.favicon);
             } else {
               throw new Error('Favicon not found');
@@ -116,3 +108,12 @@ export default function Layout({ branding, children }) {
     </div>
   );
 }
+
+// Add prop types validation
+Layout.propTypes = {
+  branding: PropTypes.shape({
+    name: PropTypes.string,
+    favicon: PropTypes.string,
+  }),
+  children: PropTypes.node,
+};

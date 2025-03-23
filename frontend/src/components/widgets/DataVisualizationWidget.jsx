@@ -1,12 +1,7 @@
+import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import Plot from 'react-plotly.js';
-
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-
-import { cn } from '@/lib/utils';
 
 import { FEATURES } from '../../config/features';
 import {
@@ -16,10 +11,16 @@ import {
   sampleData,
 } from '../../utils/dataProcessing';
 
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
+
+
 const INITIAL_POINTS_THRESHOLD = 1000;
 const PROGRESSIVE_LOADING_CHUNK_SIZE = 500;
 
-const DataVisualizationWidget = ({ id, data: rawData, content, error, className }) => {
+const DataVisualizationWidget = ({ id, data: rawData, content: _content, error, className }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [plotError, setPlotError] = useState(null);
   const [processedData, setProcessedData] = useState(null);
@@ -119,7 +120,7 @@ const DataVisualizationWidget = ({ id, data: rawData, content, error, className 
           });
         });
 
-        processDataInChunks(traces, PROGRESSIVE_LOADING_CHUNK_SIZE, (chunk, index, total) => {
+        processDataInChunks(traces, PROGRESSIVE_LOADING_CHUNK_SIZE, (chunk, index, _total) => {
           setProcessedData((prevData) => ({
             ...data,
             data: [
@@ -223,6 +224,20 @@ const DataVisualizationWidget = ({ id, data: rawData, content, error, className 
       </CardContent>
     </Card>
   );
+};
+
+DataVisualizationWidget.propTypes = {
+  id: PropTypes.string.isRequired,
+  data: PropTypes.shape({
+    compressed: PropTypes.bool,
+    value: PropTypes.any,
+    data: PropTypes.array,
+    layout: PropTypes.object,
+    config: PropTypes.object,
+  }),
+  content: PropTypes.any,
+  error: PropTypes.string,
+  className: PropTypes.string,
 };
 
 export default React.memo(DataVisualizationWidget);

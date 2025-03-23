@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import PropTypes from 'prop-types';
 
 import { Label } from '@/components/ui/label';
 import {
@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
 import { cn } from '@/lib/utils';
 
 const SelectboxWidget = ({
@@ -27,7 +26,7 @@ const SelectboxWidget = ({
   size = 'default', // "sm", "default", "lg"
 }) => {
   const handleValueChange = (newValue) => {
-    console.log('[SelectboxWidget] Change event:', {
+    console.error('[SelectboxWidget] Change event:', {
       id,
       oldValue: value,
       newValue: newValue,
@@ -36,14 +35,14 @@ const SelectboxWidget = ({
 
     try {
       onChange?.(newValue);
-      console.log('[SelectboxWidget] State updated successfully:', {
+      console.error('[SelectboxWidget] State updated successfully:', {
         id,
         value: newValue,
       });
-    } catch (error) {
+    } catch (err) {
       console.error('[SelectboxWidget] Error updating state:', {
         id,
-        error: error.message,
+        error: err.message,
       });
     }
   };
@@ -96,6 +95,20 @@ const SelectboxWidget = ({
       {error && <p className="text-xs text-destructive mt-1">{error}</p>}
     </div>
   );
+};
+
+SelectboxWidget.propTypes = {
+  label: PropTypes.string,
+  options: PropTypes.arrayOf(PropTypes.string),
+  value: PropTypes.string,
+  id: PropTypes.string,
+  onChange: PropTypes.func,
+  className: PropTypes.string,
+  placeholder: PropTypes.string,
+  disabled: PropTypes.bool,
+  error: PropTypes.string,
+  required: PropTypes.bool,
+  size: PropTypes.oneOf(['sm', 'default', 'lg']),
 };
 
 export default SelectboxWidget;

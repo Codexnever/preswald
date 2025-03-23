@@ -1,16 +1,18 @@
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Set, Callable, Union
+import hashlib
+import inspect
+import logging
+import pickle
+import time
+import uuid
 from dataclasses import dataclass, field
-from functools import wraps
+from datetime import datetime
 from enum import Enum
+from functools import wraps
+from typing import Any, Callable, Dict, List, Optional, Set
+
 import networkx as nx
 import plotly.graph_objects as go
-import inspect
-import uuid
-import time
-import logging
-import hashlib
-import pickle
+
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -98,15 +100,9 @@ class AtomCache:
         return hashlib.sha256(hash_str).hexdigest()
 
     def _hash_value(self, value: Any) -> str:
-        """
-        Create a hash for a value, handling different types appropriately.
-        For complex objects, we use their memory address as a proxy for identity.
-        """
         try:
-            # Try to pickle the value first
             return hashlib.sha256(pickle.dumps(value)).hexdigest()
-        except:
-            # If pickling fails, use the object's memory address
+        except Exception:
             return str(id(value))
 
     def should_recompute(self, atom_name: str, input_hash: str) -> bool:
@@ -152,7 +148,7 @@ class Atom:
                 return result
             except Exception as e:
                 logger.error(
-                    f"Atom {self.name} failed with error: {str(e)}", exc_info=True
+                    f"Atom {self.name} failed with error: {e!s}", exc_info=True
                 )
                 raise
             finally:
@@ -463,10 +459,7 @@ class WorkflowAnalyzer:
         return self.graph
 
     def get_critical_path(self) -> List[str]:
-        """
-        Identifies the critical path through the workflow - the longest dependency chain
-        that must be executed sequentially.
-        """
+        """Identifies the critical path through the workflow."""
         if not self._is_graph_current():
             self.build_graph()
 
@@ -497,7 +490,7 @@ class WorkflowAnalyzer:
 
         except nx.NetworkXException as e:
             print(f"Error finding critical path: {e}")
-            return []
+            return list(self.graph.nodes)
 
     def get_parallel_groups(self) -> List[Set[str]]:
         """
@@ -508,15 +501,12 @@ class WorkflowAnalyzer:
 
         try:
             return list(nx.topological_generations(self.graph))
+
         except nx.NetworkXException as e:
             print(f"Error finding parallel groups: {e}")
-            return []
+            return [set(self.graph.nodes)]
 
-    def visualize(
-        self,
-        highlight_path: Optional[List[str]] = None,
-        title: str = "Workflow Dependency Graph",
-    ):
+    def visualize(self, title: str = "Workflow Dependency Graph", highlight_path=None):
         """
         Creates an interactive visualization of the workflow using Plotly.
 
@@ -572,19 +562,18 @@ class WorkflowAnalyzer:
             x=node_x,
             y=node_y,
             mode="markers+text",
+            marker={
+                "color": node_colors,
+                "size": node_sizes,
+                "line": {"width": 2, "color": "white"},
+            },
+            text=node_texts,
             hoverinfo="text",
-            text=list(self.graph.nodes()),
-            textposition="bottom center",
-            hovertext=node_texts,
-            marker=dict(
-                color=node_colors, size=node_sizes, line_width=2, line_color="white"
-            ),
             name="Atoms",
         )
 
         # Prepare edge traces
         edge_traces = []
-
         for edge in self.graph.edges():
             x0, y0 = pos[edge[0]]
             x1, y1 = pos[edge[1]]
@@ -600,10 +589,10 @@ class WorkflowAnalyzer:
                 x=[x0, x1, None],
                 y=[y0, y1, None],
                 mode="lines",
-                line=dict(
-                    width=3 if is_highlighted else 1,
-                    color="#d62728" if is_highlighted else "#888",
-                ),
+                line={
+                    "width": 3 if is_highlighted else 1,
+                    "color": "#d62728" if is_highlighted else "#888",
+                },
                 hoverinfo="none",
                 showlegend=False,
             )
@@ -611,14 +600,12 @@ class WorkflowAnalyzer:
 
         # Create the figure
         fig = go.Figure(
-            data=edge_traces + [nodes_trace],
+            data=[*edge_traces, nodes_trace],
             layout=go.Layout(
-                title=dict(text=title, x=0.5, y=0.95),
-                showlegend=False,
-                hovermode="closest",
-                margin=dict(b=20, l=5, r=5, t=40),
-                xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                title={"text": title, "x": 0.5, "y": 0.95},
+                margin={"b": 20, "l": 5, "r": 5, "t": 40},
+                xaxis={"showgrid": False, "zeroline": False, "showticklabels": False},
+                yaxis={"showgrid": False, "zeroline": False, "showticklabels": False},
                 plot_bgcolor="white",
             ),
         )
@@ -630,9 +617,8 @@ class WorkflowAnalyzer:
                     x=[None],
                     y=[None],
                     mode="markers",
-                    marker=dict(size=10, color=color),
+                    marker={"size": 10, "color": color},
                     name=status.replace("_", " ").title(),
-                    showlegend=True,
                 )
             )
 

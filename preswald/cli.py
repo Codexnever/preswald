@@ -190,6 +190,7 @@ def run(port, log_level, disable_new_tab):
 @click.option(
     "--github",
     help="GitHub username for structured deployment",
+    callback=lambda ctx, param, value: value.lower() if value else None,
 )
 @click.option(
     "--api-key",
@@ -198,10 +199,38 @@ def run(port, log_level, disable_new_tab):
 def deploy(script, target, port, log_level, github, api_key):  # noqa: C901
     """
     Deploy your Preswald app.
-
     This allows you to share the app within your local network or deploy to production.
     If no script is provided, it will use the entrypoint defined in preswald.toml.
     """
+    # Add validation early in the flow
+    if github:
+        from preswald.utils import validate_github_username
+
+        is_valid, msg, corrected = validate_github_username(github)
+        if not is_valid:
+            if corrected:
+                # Show lowercase notification instead of correction details
+                click.echo(
+                    click.style(
+                        f"i  GitHub username must be lowercase: {corrected}", fg="blue"
+                    )
+                )
+                github = corrected
+            else:
+                click.echo(click.style(f"❌ Invalid GitHub username: {msg}", fg="red"))
+                click.echo(
+                    "Example valid format: " + click.style("john-doe123", fg="cyan")
+                )
+                sys.exit(1)
+
+    if api_key:
+        from preswald.utils import validate_api_key
+
+        is_valid, msg = validate_api_key(api_key)
+        if not is_valid:
+            click.echo(click.style("❌ Invalid API key:", fg="red"))
+            click.echo(msg)
+            sys.exit(1)
     try:
         if target == "aws":
             click.echo(
@@ -358,7 +387,7 @@ def stop(target):
         else:
             stop_app(current_dir)
             click.echo("Deployment stopped successfully. 🛑 ")
-    except Exception as e:
+    except Exception:
         sys.exit(1)
 
 

@@ -20,7 +20,7 @@ class BuildFrontendCommand(Command):
         try:
             self._build_frontend()
         except Exception as e:
-            print(f"Error building frontend: {str(e)}", file=sys.stderr)
+            print(f"Error building frontend: {e!s}", file=sys.stderr)
             raise
 
     def _build_frontend(self):
@@ -63,10 +63,10 @@ class BuildFrontendCommand(Command):
             self._copy_assets(frontend_dir)
 
         except subprocess.CalledProcessError as e:
-            print(f"Failed to build frontend: {str(e)}", file=sys.stderr)
+            print(f"Failed to build frontend: {e!s}", file=sys.stderr)
             raise
         except Exception as e:
-            print(f"Unexpected error building frontend: {str(e)}", file=sys.stderr)
+            print(f"Unexpected error building frontend: {e!s}", file=sys.stderr)
             raise
 
     def _copy_assets(self, frontend_dir):
@@ -126,7 +126,7 @@ CORE_DEPENDENCIES = [
     "Requests>=2.31.0",  # NOTE: maybe need to make this server only as well?
     "setuptools>=69.5.1",
     "tomli>=2.0.1",  # TODO: standardize alongside toml/tomllib
-    "scipy>=1.15.2"
+    "scipy>=1.15.2",
 ]
 
 # Define additional dependencies for development

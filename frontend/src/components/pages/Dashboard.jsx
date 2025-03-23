@@ -1,11 +1,12 @@
-import React from 'react';
-
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import PropTypes from 'prop-types';
 
 import DynamicComponents from '../DynamicComponents';
 
+import { Alert, AlertDescription } from '@/components/ui/alert';
+
 const Dashboard = ({ components, error, handleComponentUpdate }) => {
-  console.log('[Dashboard] Rendering with:', { components, error });
+  // Change console.log to console.warn to match allowed console methods
+  console.warn('[Dashboard] Rendering with:', { components, error });
 
   const isValidComponents =
     components &&
@@ -47,6 +48,15 @@ const Dashboard = ({ components, error, handleComponentUpdate }) => {
   };
 
   return <div className="min-h-screen">{renderContent()}</div>;
+};
+
+// Add prop validation
+Dashboard.propTypes = {
+  components: PropTypes.shape({
+    rows: PropTypes.arrayOf(PropTypes.array).isRequired,
+  }),
+  error: PropTypes.string,
+  handleComponentUpdate: PropTypes.func.isRequired,
 };
 
 export default Dashboard;

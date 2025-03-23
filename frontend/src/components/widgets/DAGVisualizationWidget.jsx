@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import PropTypes from 'prop-types';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { FiInfo, FiLock, FiMaximize2, FiMinimize2, FiUnlock } from 'react-icons/fi';
 import { useInView } from 'react-intersection-observer';
 import ReactFlow, {
@@ -15,7 +16,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-
 import { cn } from '@/lib/utils';
 
 // Custom node styles
@@ -28,7 +28,7 @@ const nodeStyles = {
   textAlign: 'center',
 };
 
-const DAGVisualizationWidget = ({ id, data: rawData, content, error }) => {
+const DAGVisualizationWidget = ({ data: rawData, error }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [selectedNode, setSelectedNode] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,7 +38,7 @@ const DAGVisualizationWidget = ({ id, data: rawData, content, error }) => {
   const plotContainerRef = useRef(null);
   const [showMiniMap, setShowMiniMap] = useState(false);
 
-  const { ref: inViewRef, inView } = useInView({
+  const { ref: inViewRef } = useInView({
     threshold: 0.1,
     triggerOnce: true,
   });
@@ -131,7 +131,7 @@ const DAGVisualizationWidget = ({ id, data: rawData, content, error }) => {
       setEdges(flowEdges);
       setIsLoading(false);
     }
-  }, [rawData]);
+  }, [rawData, setNodes, setEdges]);
 
   const handleNodeClick = useCallback((_, node) => {
     setSelectedNode(node.data);
@@ -287,6 +287,23 @@ const DAGVisualizationWidget = ({ id, data: rawData, content, error }) => {
       )}
     </Card>
   );
+};
+
+DAGVisualizationWidget.propTypes = {
+  data: PropTypes.shape({
+    data: PropTypes.arrayOf(
+      PropTypes.shape({
+        type: PropTypes.string,
+        customdata: PropTypes.array,
+        node: PropTypes.shape({
+          positions: PropTypes.array
+        })
+      })
+    )
+  }),
+  error: PropTypes.string,
+  id: PropTypes.string,
+  content: PropTypes.any
 };
 
 export default DAGVisualizationWidget;

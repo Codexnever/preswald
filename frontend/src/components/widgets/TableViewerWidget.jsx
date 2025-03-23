@@ -1,6 +1,6 @@
 import { ChevronDown } from 'lucide-react';
-
-import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
 import { cn } from '@/lib/utils';
 
 const TableViewerWidget = ({
@@ -128,6 +127,17 @@ const TableViewerWidget = ({
   }
 
   return TableContent;
+};
+
+TableViewerWidget.propTypes = {
+  data: PropTypes.arrayOf(PropTypes.object),
+  title: PropTypes.string,
+  className: PropTypes.string,
+  variant: PropTypes.oneOf(['default', 'card']),
+  showTitle: PropTypes.bool,
+  striped: PropTypes.bool,
+  dense: PropTypes.bool,
+  hoverable: PropTypes.bool,
 };
 
 export default TableViewerWidget;

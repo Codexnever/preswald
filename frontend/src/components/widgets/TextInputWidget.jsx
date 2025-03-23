@@ -1,8 +1,7 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
 import { cn } from '@/lib/utils';
 
 const TextInputWidget = ({
@@ -21,7 +20,8 @@ const TextInputWidget = ({
 }) => {
   const handleChange = (e) => {
     const newValue = e.target.value;
-    console.log('[TextInputWidget] Change event:', {
+    // Using only allowed console methods
+    console.error('[TextInputWidget] Change event:', {
       id,
       oldValue: value,
       newValue: newValue,
@@ -30,7 +30,7 @@ const TextInputWidget = ({
 
     try {
       onChange?.(newValue);
-      console.log('[TextInputWidget] State updated successfully:', {
+      console.error('[TextInputWidget] State updated successfully:', {
         id,
         value: newValue,
       });
@@ -83,6 +83,21 @@ const TextInputWidget = ({
       {error && <p className="text-xs text-destructive mt-1">{error}</p>}
     </div>
   );
+};
+
+TextInputWidget.propTypes = {
+  label: PropTypes.string,
+  placeholder: PropTypes.string,
+  value: PropTypes.string,
+  id: PropTypes.string,
+  onChange: PropTypes.func,
+  className: PropTypes.string,
+  error: PropTypes.string,
+  disabled: PropTypes.bool,
+  required: PropTypes.bool,
+  type: PropTypes.string,
+  size: PropTypes.oneOf(['sm', 'default', 'lg']),
+  variant: PropTypes.oneOf(['default', 'ghost']),
 };
 
 export default TextInputWidget;

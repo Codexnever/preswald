@@ -1,8 +1,8 @@
 import io
 import json
-import re
 import logging
 import os
+import re
 import shutil
 import subprocess
 import zipfile
@@ -35,12 +35,12 @@ def get_deploy_dir(script_path: str) -> Path:
     return deploy_dir
 
 
-def get_container_name(script_path: str) -> str: 
-    """Generate a consistent container name for a given script""" 
-    container_name = f"preswald-app-{Path(script_path).stem}" 
+def get_container_name(script_path: str) -> str:
+    """Generate a consistent container name for a given script"""
+    container_name = f"preswald-app-{Path(script_path).stem}"
     container_name = container_name.lower()
     container_name = re.sub(r"[^a-z0-9-]", "", container_name)
-    container_name = container_name.strip('-')
+    container_name = container_name.strip("-")
     return container_name
 
 

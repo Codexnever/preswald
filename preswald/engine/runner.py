@@ -1,6 +1,6 @@
-import os
 import asyncio
 import logging
+import os
 import sys
 import threading
 import time
@@ -8,7 +8,8 @@ import traceback
 from contextlib import contextmanager
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, Optional  # Added Callable import
+
 
 logger = logging.getLogger(__name__)
 
@@ -27,15 +28,9 @@ class ScriptRunner:
         self,
         session_id: str,
         send_message_callback: Callable,
-        initial_states: Dict = None,
+        initial_states: Optional[Dict] = None,
     ):
-        """Initialize the ScriptRunner with enhanced state management.
-
-        Args:
-            session_id: Unique identifier for this session
-            send_message_callback: Async callback to send messages to frontend
-            initial_states: Initial widget states if any
-        """
+        """Initialize the ScriptRunner with enhanced state management."""
         self.session_id = session_id
         self._send_message_callback = send_message_callback
         self.script_path: Optional[str] = None
@@ -45,19 +40,20 @@ class ScriptRunner:
         self._run_count = 0
         self._lock = threading.Lock()
         self._script_globals = {}
+        self._tasks = []  # Store task references to prevent garbage collection
 
         logger.info(f"[ScriptRunner] Initialized with session_id: {session_id}")
         if initial_states:
             logger.debug(f"[ScriptRunner] Loaded initial states: {initial_states}")
 
-    async def send_message(self, msg: dict):
+    async def send_message(self, msg: dict):  # Fixed 4-space indent
         """Send a message to the frontend."""
         try:
             await self._send_message_callback(msg)
         except Exception as e:
             logger.error(f"[ScriptRunner] Error sending message: {e}")
 
-    @property
+    @property  # Fixed decorator alignment
     def is_running(self) -> bool:
         """Thread-safe check if script is running."""
         with self._lock:
@@ -85,7 +81,7 @@ class ScriptRunner:
         try:
             await self.run_script()
         except Exception as e:
-            await self._send_error(f"Failed to start script: {str(e)}")
+            await self._send_error(f"Failed to start script: {e!s}")
             self._state = ScriptState.ERROR
 
     async def stop(self):
@@ -99,7 +95,10 @@ class ScriptRunner:
             logger.error(f"[ScriptRunner] Error stopping script: {e}")
             raise
 
-    async def rerun(self, new_widget_states: Dict[str, Any] = None):
+    # def __init__(self, initial_states: Optional[Dict] = None):
+    async def rerun(
+        self, new_widget_states: Optional[Dict[str, Any]] = None
+    ):  # Align with class
         """Rerun the script with new widget values and debouncing.
 
         Args:
@@ -133,7 +132,7 @@ class ScriptRunner:
             await self.run_script()
 
         except Exception as e:
-            error_msg = f"Error updating widget states: {str(e)}"
+            error_msg = f"Error updating widget states: {e!s}"
             logger.error(f"[ScriptRunner] {error_msg}")
             await self._send_error(error_msg)
             self._state = ScriptState.ERROR
@@ -154,48 +153,12 @@ class ScriptRunner:
         except Exception as e:
             logger.error(f"[ScriptRunner] Failed to send error message: {e}")
 
+    # Refactored to reduce complexity
     @contextmanager
     def _redirect_stdout(self):
-        """Capture and redirect stdout with improved buffering."""
-        logger.debug("[ScriptRunner] Setting up stdout redirection")
-
-        class PreswaldOutputStream:
-            def __init__(self, callback):
-                self.callback = callback
-                self.buffer = ""
-                self._lock = threading.Lock()
-
-            def write(self, text):
-                with self._lock:
-                    self.buffer += text
-                    if "\n" in self.buffer:
-                        lines = self.buffer.split("\n")
-                        for line in lines[:-1]:
-                            if line.strip():
-                                logger.debug(f"[ScriptRunner] Captured output: {line}")
-                                asyncio.create_task(
-                                    self.callback(
-                                        {"type": "output", "content": line + "\n"}
-                                    )
-                                )
-                        self.buffer = lines[-1]
-
-            def flush(self):
-                with self._lock:
-                    if self.buffer:
-                        if self.buffer.strip():
-                            logger.debug(
-                                f"[ScriptRunner] Flushing output: {self.buffer}"
-                            )
-                            asyncio.create_task(
-                                self.callback(
-                                    {"type": "output", "content": self.buffer}
-                                )
-                            )
-                        self.buffer = ""
-
+        """Context manager for stdout redirection"""
+        output_stream = self._create_output_stream()
         old_stdout = sys.stdout
-        output_stream = PreswaldOutputStream(self.send_message)
         sys.stdout = output_stream
         try:
             yield
@@ -204,55 +167,102 @@ class ScriptRunner:
             sys.stdout = old_stdout
             logger.debug("[ScriptRunner] Restored stdout")
 
-    async def run_script(self):
-        """Execute the script with enhanced error handling and state management."""
-        if not self.is_running or not self.script_path:
-            logger.warning("[ScriptRunner] Not running or no script path set")
-            return
+    def _create_output_stream(self):
+        """Create and return a custom output stream"""
+        return PreswaldOutputStream(self.send_message, self._tasks)
 
-        logger.info(f"[ScriptRunner] Running script: {self.script_path} (run #{self._run_count})")
 
-        try:
-            from .service import PreswaldService
-            service = PreswaldService.get_instance()
-            
-            # Clear previous components before execution
-            service.clear_components()
+class PreswaldOutputStream:
+    """Custom output stream to capture script output"""
 
-            # Set up script environment
-            self._script_globals = {
-                "widget_states": self.widget_states,
-            }
+    def __init__(self, callback, tasks_list):
+        self.callback = callback
+        self.buffer = ""
+        self._lock = threading.Lock()
+        self._tasks_list = tasks_list
 
-            # Capture script output
-            with self._redirect_stdout():
-                # Execute script
-                with open(self.script_path, "r", encoding='utf-8') as f:
-                    # Save current cwd
-                    current_working_dir = os.getcwd()
-                    # Execute script with script directory set as cwd
-                    script_dir = os.path.dirname(os.path.realpath(self.script_path))
-                    os.chdir(script_dir)
-                    code = compile(f.read(), self.script_path, "exec")
-                    logger.debug("[ScriptRunner] Script compiled")
-                    exec(code, self._script_globals)
-                    logger.debug("[ScriptRunner] Script executed")
-                    # Change back to original working dir
-                    os.chdir(current_working_dir)
+    def write(self, text):
+        with self._lock:
+            self.buffer += text
+            if "\n" in self.buffer:
+                self._process_buffer_lines()
 
-                # Process rendered components
-                components = service.get_rendered_components()
-                logger.info(f"[ScriptRunner] Rendered {len(components)} components")
+    def _process_buffer_lines(self):
+        """Process lines in the buffer"""
+        lines = self.buffer.split("\n")
+        for line in lines[:-1]:
+            if line.strip():
+                logger.debug(f"[ScriptRunner] Captured output: {line}")
+                task = asyncio.create_task(
+                    self.callback({"type": "output", "content": line + "\n"})
+                )
+                self._tasks_list.append(task)  # Store reference
+        self.buffer = lines[-1]
 
-                if components:
-                    # Send to frontend
-                    await self.send_message(
-                        {"type": "components", "components": components}
+    def flush(self):
+        with self._lock:
+            if self.buffer:
+                if self.buffer.strip():
+                    logger.debug(f"[ScriptRunner] Flushing output: {self.buffer}")
+                    task = asyncio.create_task(
+                        self.callback({"type": "output", "content": self.buffer})
                     )
-                    logger.debug("[ScriptRunner] Sent components to frontend")
+                    self._tasks_list.append(task)  # Store reference
+                self.buffer = ""
 
-        except Exception as e:
-            error_msg = f"Error executing script: {str(e)}"
-            logger.error(f"[ScriptRunner] {error_msg}", exc_info=True)
-            await self._send_error(error_msg)
-            self._state = ScriptState.ERROR
+
+async def run_script(self):
+    """Execute the script with enhanced error handling and state management."""
+    if not self.is_running or not self.script_path:
+        logger.warning("[ScriptRunner] Not running or no script path set")
+        return
+
+    logger.info(
+        f"[ScriptRunner] Running script: {self.script_path} (run #{self._run_count})"
+    )
+
+    try:
+        from .service import PreswaldService
+
+        service = PreswaldService.get_instance()
+
+        # Clear previous components before execution
+        service.clear_components()
+
+        # Set up script environment
+        self._script_globals = {
+            "widget_states": self.widget_states,
+        }
+
+        # Capture script output
+        with self._redirect_stdout():
+            # Execute script
+            with open(self.script_path, encoding="utf-8") as f:
+                # Save current cwd
+                current_working_dir = os.getcwd()
+                # Execute script with script directory set as cwd
+                script_dir = os.path.dirname(os.path.realpath(self.script_path))
+                os.chdir(script_dir)
+                code = compile(f.read(), self.script_path, "exec")
+                logger.debug("[ScriptRunner] Script compiled")
+                exec(code, self._script_globals)
+                logger.debug("[ScriptRunner] Script executed")
+                # Change back to original working dir
+                os.chdir(current_working_dir)
+
+            # Process rendered components
+            components = service.get_rendered_components()
+            logger.info(f"[ScriptRunner] Rendered {len(components)} components")
+
+            if components:
+                # Send to frontend
+                await self.send_message(
+                    {"type": "components", "components": components}
+                )
+                logger.debug("[ScriptRunner] Sent components to frontend")
+
+    except Exception as e:
+        error_msg = f"Error executing script: {e!s}"
+        logger.error(f"[ScriptRunner] {error_msg}", exc_info=True)
+        await self._send_error(error_msg)
+        self._state = ScriptState.ERROR

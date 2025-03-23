@@ -1,9 +1,7 @@
 import { AlertTriangle, CheckCircle2, Info, XCircle } from 'lucide-react';
-
-import React from 'react';
+import PropTypes from 'prop-types';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-
 import { cn } from '@/lib/utils';
 
 const levelConfig = {
@@ -43,6 +41,13 @@ const AlertWidget = ({ message, level = 'info', className }) => {
       <AlertDescription>{message}</AlertDescription>
     </Alert>
   );
+};
+
+// Add prop validation
+AlertWidget.propTypes = {
+  message: PropTypes.string.isRequired,
+  level: PropTypes.oneOf(['success', 'warning', 'error', 'info']),
+  className: PropTypes.string,
 };
 
 export default AlertWidget;

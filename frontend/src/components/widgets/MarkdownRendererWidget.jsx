@@ -1,13 +1,11 @@
-import remarkGfm from 'remark-gfm';
-
-import React from 'react';
+import PropTypes from 'prop-types';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import remarkGfm from 'remark-gfm';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
-
 import { cn } from '@/lib/utils';
 
 const MarkdownRendererWidget = ({
@@ -76,7 +74,7 @@ const MarkdownRendererWidget = ({
         {...props}
       />
     ),
-    code: ({ node, inline, className, children, ...props }) => {
+    code: ({ _node, inline, className, children, ...props }) => {
       const match = /language-(\w+)/.exec(className || '');
       const lang = match ? match[1] : '';
       const isInline = inline || !lang;
@@ -187,6 +185,14 @@ const MarkdownRendererWidget = ({
       </CardContent>
     </Card>
   );
+};
+
+MarkdownRendererWidget.propTypes = {
+  markdown: PropTypes.string,
+  value: PropTypes.string,
+  error: PropTypes.string,
+  className: PropTypes.string,
+  variant: PropTypes.oneOf(['default', 'outline', 'ghost']),
 };
 
 export default MarkdownRendererWidget;

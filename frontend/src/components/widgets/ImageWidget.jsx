@@ -1,8 +1,7 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Card } from '@/components/ui/card';
-
 import { cn } from '@/lib/utils';
 
 const ImageWidget = ({
@@ -48,6 +47,17 @@ const ImageWidget = ({
   }
 
   return ImageComponent;
+};
+
+ImageWidget.propTypes = {
+  src: PropTypes.string.isRequired,
+  alt: PropTypes.string,
+  size: PropTypes.oneOf(['small', 'medium', 'large', 'full']),
+  rounded: PropTypes.bool,
+  className: PropTypes.string,
+  withCard: PropTypes.bool,
+  aspectRatio: PropTypes.number,
+  objectFit: PropTypes.oneOf(['cover', 'contain']),
 };
 
 export default ImageWidget;

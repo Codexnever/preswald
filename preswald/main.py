@@ -1,8 +1,8 @@
+import asyncio  # Add at top of file
 import json
 import logging
 import os
 import re
-import signal
 from typing import Optional
 
 import pkg_resources
@@ -120,29 +120,32 @@ def start_server(script: Optional[str] = None, port: int = 8501):
     config = uvicorn.Config(app, host="0.0.0.0", port=port, loop="asyncio")
     server = uvicorn.Server(config)
 
-    # Handle shutdown signals
-    async def handle_shutdown(signum=None, frame=None):
-        """Handle graceful shutdown of the server"""
-        logger.info("Shutting down server...")
-        await app.state.service.shutdown()
+    return server  # Fixed indentation here
 
-    # Handle shutdown signals
-    def sync_handle_shutdown(signum, frame):
-        """Synchronous wrapper for the async shutdown handler"""
-        loop = asyncio.get_event_loop()
-        loop.create_task(handle_shutdown(signum, frame))
 
-    signal.signal(signal.SIGINT, sync_handle_shutdown)
-    signal.signal(signal.SIGTERM, sync_handle_shutdown)
+async def main():  # Fixed indentation here
+    server = start_server()
+    await server.serve()
 
+
+async def handle_shutdown():
+    """Handle graceful shutdown"""
+    logger.info("Shutting down server...")
+
+
+if __name__ == "__main__":
     try:
-        import asyncio
+        # Directly run the server
+        app = create_app()
+        config = uvicorn.Config(app, host="0.0.0.0", port=8501)
+        server = uvicorn.Server(config)
         asyncio.run(server.serve())
     except KeyboardInterrupt:
+        logger.info("Server stopped by user")
         asyncio.run(handle_shutdown())
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        raise
+        logger.error(f"Server error: {e}")
+        asyncio.run(handle_shutdown())
 
 
 def _setup_static_files(app: FastAPI) -> BrandingManager:

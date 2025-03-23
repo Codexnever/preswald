@@ -1,9 +1,8 @@
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
-
-import React from 'react';
+// Remove React import since it's not directly used
+import PropTypes from 'prop-types';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-
 import { cn } from '@/lib/utils';
 
 const UnknownWidget = ({
@@ -37,6 +36,14 @@ const UnknownWidget = ({
       </AlertDescription>
     </Alert>
   );
+};
+
+// Add prop validation
+UnknownWidget.propTypes = {
+  type: PropTypes.string,
+  id: PropTypes.string,
+  className: PropTypes.string,
+  variant: PropTypes.string,
 };
 
 export default UnknownWidget;

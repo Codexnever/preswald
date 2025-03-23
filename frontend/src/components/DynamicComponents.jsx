@@ -1,8 +1,5 @@
+import PropTypes from 'prop-types';
 import React, { memo } from 'react';
-
-import { Alert, AlertDescription } from '@/components/ui/alert';
-
-import { cn } from '@/lib/utils';
 
 // Import all widgets
 import AlertWidget from './widgets/AlertWidget';
@@ -20,6 +17,9 @@ import SpinnerWidget from './widgets/SpinnerWidget';
 import TableViewerWidget from './widgets/TableViewerWidget';
 import TextInputWidget from './widgets/TextInputWidget';
 import UnknownWidget from './widgets/UnknownWidget';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 
 // Error boundary component
 class ErrorBoundary extends React.Component {
@@ -50,6 +50,10 @@ class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
+
+ErrorBoundary.propTypes = {
+  children: PropTypes.node
+};
 
 // Memoized component wrapper
 const MemoizedComponent = memo(
@@ -259,6 +263,63 @@ const MemoizedComponent = memo(
     );
   }
 );
+// prop-types validation errors
+MemoizedComponent.displayName = 'MemoizedComponent';
+
+MemoizedComponent.propTypes = {
+  component: PropTypes.shape({
+    id: PropTypes.string,
+    type: PropTypes.string,
+    label: PropTypes.string,
+    variant: PropTypes.string,
+    size: PropTypes.string,
+    disabled: PropTypes.bool,
+    loading: PropTypes.bool,
+    min: PropTypes.number,
+    max: PropTypes.number,
+    step: PropTypes.number,
+    value: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+      PropTypes.bool,
+      PropTypes.array,
+      PropTypes.object
+    ]),
+    showValue: PropTypes.bool,
+    showMinMax: PropTypes.bool,
+    className: PropTypes.string,
+    placeholder: PropTypes.string,
+    error: PropTypes.string,
+    required: PropTypes.bool,
+    description: PropTypes.string,
+    options: PropTypes.array,
+    steps: PropTypes.array,
+    showLabel: PropTypes.bool,
+    level: PropTypes.string,
+    message: PropTypes.string,
+    content: PropTypes.string,
+    src: PropTypes.string,
+    alt: PropTypes.string,
+    rounded: PropTypes.bool,
+    withCard: PropTypes.bool,
+    aspectRatio: PropTypes.number,
+    objectFit: PropTypes.string,
+    markdown: PropTypes.string,
+    data: PropTypes.oneOfType([
+      PropTypes.array,
+      PropTypes.object
+    ]),
+    title: PropTypes.string,
+    showTitle: PropTypes.bool,
+    striped: PropTypes.bool,
+    dense: PropTypes.bool,
+    hoverable: PropTypes.bool,
+    layout: PropTypes.object,
+    config: PropTypes.object
+  }),
+  index: PropTypes.number,
+  handleUpdate: PropTypes.func
+};
 
 const DynamicComponents = ({ components, onComponentUpdate }) => {
   console.log('[DynamicComponents] Rendering with components:', components);
@@ -293,9 +354,8 @@ const DynamicComponents = ({ components, onComponentUpdate }) => {
           if (!component) return null;
 
           return (
-            <>
+            <React.Fragment key={component.id || `component-container-${index}`}>
               <div
-                key={component.id || `component-${index}`}
                 className={cn(
                   'bg-background rounded-lg transition-all duration-200 hover:border-muted-foreground/20',
                   component.type === 'separator' ? 'hidden' : ''
@@ -315,7 +375,7 @@ const DynamicComponents = ({ components, onComponentUpdate }) => {
                 </ErrorBoundary>
               </div>
               {index < row.length - 1 && <div className="w-px bg-gray-200 my-4 mx-4 h-auto" />}
-            </>
+            </React.Fragment>
           );
         })}
       </div>
@@ -327,6 +387,17 @@ const DynamicComponents = ({ components, onComponentUpdate }) => {
       {components.rows.map((row, index) => renderRow(row, index))}
     </div>
   );
+};
+
+DynamicComponents.propTypes = {
+  components: PropTypes.shape({
+    rows: PropTypes.arrayOf(
+      PropTypes.arrayOf(
+        PropTypes.object
+      )
+    )
+  }),
+  onComponentUpdate: PropTypes.func
 };
 
 export default memo(DynamicComponents);
