@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 
-import DynamicComponents from '../DynamicComponents';
-
 import { Alert, AlertDescription } from '@/components/ui/alert';
+
+import DynamicComponents from '../DynamicComponents';
 
 const Dashboard = ({ components, error, handleComponentUpdate }) => {
   // Change console.log to console.warn to match allowed console methods

@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+
 import { cn } from '@/lib/utils';
 
 const CheckboxWidget = ({
@@ -15,7 +16,7 @@ const CheckboxWidget = ({
 }) => {
   const handleCheckedChange = (checked) => {
     // Removed console.log statement that was causing a warning
-    
+
     try {
       onChange?.(checked);
       // Removed console.log statement that was causing a warning

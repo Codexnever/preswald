@@ -2,12 +2,13 @@
 
 import { HomeIcon } from '@heroicons/react/24/solid';
 import PropTypes from 'prop-types';
-import { useState, useEffect } from 'react';
+
+import { useEffect, useState } from 'react';
+
+import { cn } from '@/lib/utils';
 
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
-
-import { cn } from '@/lib/utils';
 
 const navigation = [{ name: 'Dashboard', href: '/', icon: HomeIcon }];
 

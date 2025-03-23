@@ -1,7 +1,14 @@
 import PropTypes from 'prop-types';
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import Plot from 'react-plotly.js';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+
+import { cn } from '@/lib/utils';
 
 import { FEATURES } from '../../config/features';
 import {
@@ -10,12 +17,6 @@ import {
   processDataInChunks,
   sampleData,
 } from '../../utils/dataProcessing';
-
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { cn } from '@/lib/utils';
-
 
 const INITIAL_POINTS_THRESHOLD = 1000;
 const PROGRESSIVE_LOADING_CHUNK_SIZE = 500;

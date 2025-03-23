@@ -1,5 +1,10 @@
 import PropTypes from 'prop-types';
+
 import React, { memo } from 'react';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
+
+import { cn } from '@/lib/utils';
 
 // Import all widgets
 import AlertWidget from './widgets/AlertWidget';
@@ -17,9 +22,6 @@ import SpinnerWidget from './widgets/SpinnerWidget';
 import TableViewerWidget from './widgets/TableViewerWidget';
 import TextInputWidget from './widgets/TextInputWidget';
 import UnknownWidget from './widgets/UnknownWidget';
-
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { cn } from '@/lib/utils';
 
 // Error boundary component
 class ErrorBoundary extends React.Component {
@@ -52,7 +54,7 @@ class ErrorBoundary extends React.Component {
 }
 
 ErrorBoundary.propTypes = {
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 // Memoized component wrapper
@@ -283,7 +285,7 @@ MemoizedComponent.propTypes = {
       PropTypes.number,
       PropTypes.bool,
       PropTypes.array,
-      PropTypes.object
+      PropTypes.object,
     ]),
     showValue: PropTypes.bool,
     showMinMax: PropTypes.bool,
@@ -305,20 +307,17 @@ MemoizedComponent.propTypes = {
     aspectRatio: PropTypes.number,
     objectFit: PropTypes.string,
     markdown: PropTypes.string,
-    data: PropTypes.oneOfType([
-      PropTypes.array,
-      PropTypes.object
-    ]),
+    data: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
     title: PropTypes.string,
     showTitle: PropTypes.bool,
     striped: PropTypes.bool,
     dense: PropTypes.bool,
     hoverable: PropTypes.bool,
     layout: PropTypes.object,
-    config: PropTypes.object
+    config: PropTypes.object,
   }),
   index: PropTypes.number,
-  handleUpdate: PropTypes.func
+  handleUpdate: PropTypes.func,
 };
 
 const DynamicComponents = ({ components, onComponentUpdate }) => {
@@ -391,13 +390,9 @@ const DynamicComponents = ({ components, onComponentUpdate }) => {
 
 DynamicComponents.propTypes = {
   components: PropTypes.shape({
-    rows: PropTypes.arrayOf(
-      PropTypes.arrayOf(
-        PropTypes.object
-      )
-    )
+    rows: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.object)),
   }),
-  onComponentUpdate: PropTypes.func
+  onComponentUpdate: PropTypes.func,
 };
 
 export default memo(DynamicComponents);

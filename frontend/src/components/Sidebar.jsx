@@ -1,10 +1,12 @@
 'use client';
 
 import PropTypes from 'prop-types';
+
 import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+
 import { cn } from '@/lib/utils';
 
 // Define NavContent PropTypes first

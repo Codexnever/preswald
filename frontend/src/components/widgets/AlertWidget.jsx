@@ -2,6 +2,7 @@ import { AlertTriangle, CheckCircle2, Info, XCircle } from 'lucide-react';
 import PropTypes from 'prop-types';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
 import { cn } from '@/lib/utils';
 
 const levelConfig = {

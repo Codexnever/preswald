@@ -1,11 +1,12 @@
+import logging
 import os
 from pathlib import Path
 from typing import Dict, List, Optional
-import logging
 
 import requests
 import tomli
 from pkg_resources import get_distribution
+
 
 STRUCTURED_CLOUD_SERVICE_URL = "http://deployer.preswald.com"
 logger = logging.getLogger(__name__)

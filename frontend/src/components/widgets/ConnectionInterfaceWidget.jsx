@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
-import { useState } from 'react'; 
+
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+
 import { cn } from '@/lib/utils';
 
 const CONNECTION_TYPES = [

@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Card } from '@/components/ui/card';
+
 import { cn } from '@/lib/utils';
 
 const ImageWidget = ({

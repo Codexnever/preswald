@@ -1,5 +1,6 @@
 import { ChevronDown } from 'lucide-react';
 import PropTypes from 'prop-types';
+
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+
 import { cn } from '@/lib/utils';
 
 const TableViewerWidget = ({

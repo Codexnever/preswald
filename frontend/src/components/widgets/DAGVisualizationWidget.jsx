@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FiInfo, FiLock, FiMaximize2, FiMinimize2, FiUnlock } from 'react-icons/fi';
 import { useInView } from 'react-intersection-observer';
@@ -16,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
 import { cn } from '@/lib/utils';
 
 // Custom node styles
@@ -296,14 +298,14 @@ DAGVisualizationWidget.propTypes = {
         type: PropTypes.string,
         customdata: PropTypes.array,
         node: PropTypes.shape({
-          positions: PropTypes.array
-        })
+          positions: PropTypes.array,
+        }),
       })
-    )
+    ),
   }),
   error: PropTypes.string,
   id: PropTypes.string,
-  content: PropTypes.any
+  content: PropTypes.any,
 };
 
 export default DAGVisualizationWidget;

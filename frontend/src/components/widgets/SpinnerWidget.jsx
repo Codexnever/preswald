@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 
 import { Card, CardContent } from '@/components/ui/card';
+
 import { cn } from '@/lib/utils';
 
 const SpinnerWidget = ({
